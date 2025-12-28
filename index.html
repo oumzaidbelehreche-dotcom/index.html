@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🪙 لعبة التحويط</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@700;900&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:'Cairo',sans-serif;
+  background:radial-gradient(circle at top,#1e293b,#020617);
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.game{
+  width:100%;
+  max-width:390px;
+  padding:20px;
+  text-align:center;
+}
+
+h2{
+  font-size:30px;
+  font-weight:900;
+  text-shadow:0 0 12px gold;
+}
+
+.coin-box{ perspective:1200px; }
+
+.coin{
+  width:160px;
+  height:160px;
+  margin:20px auto;
+  border-radius:50%;
+  background:radial-gradient(circle,#facc15,#ca8a04);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:64px;
+  font-weight:900;
+  color:#111;
+  box-shadow:0 0 30px rgba(255,215,0,.8);
+  transition:transform 1s ease-in-out;
+}
+
+.coin.spin{
+  transform:rotateY(1440deg);
+}
+
+button{
+  width:100%;
+  padding:20px;
+  margin:10px 0;
+  font-size:22px;
+  font-weight:900;
+  border:none;
+  border-radius:18px;
+  color:#fff;
+}
+
+.heads{
+  background:linear-gradient(135deg,#facc15,#f59e0b);
+  color:#111;
+}
+
+.tails{
+  background:linear-gradient(135deg,#38bdf8,#2563eb);
+}
+
+.shopbtn{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+}
+
+.reset{
+  background:linear-gradient(135deg,#ef4444,#991b1b);
+}
+
+.stats{
+  font-size:18px;
+  margin:15px 0;
+  background:rgba(255,255,255,0.05);
+  padding:10px;
+  border-radius:12px;
+}
+
+.shop{ display:none; }
+
+#result{
+  font-size:20px;
+  font-weight:900;
+  margin:10px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="game">
+  <h2>🪙 لعبة التحويط</h2>
+
+  <div class="coin-box">
+    <div class="coin" id="coin">?</div>
+  </div>
+
+  <button class="heads" onclick="play('heads')">🟡 راس</button>
+  <button class="tails" onclick="play('tails')">🔵 ترية</button>
+
+  <div class="stats">
+    💰 الرصيد: <span id="money">10</span> دراهم<br>
+    ✅ ربح: <span id="win">0</span> |
+    ❌ خسارة: <span id="lose">0</span>
+  </div>
+
+  <button class="shopbtn" onclick="toggleShop()">🛒 المتجر</button>
+
+  <div class="shop" id="shop">
+    <button onclick="buyDouble()">💎 مضاعفة الربح (5)</button>
+    <button onclick="buyLife()">❤️ فرصة إضافية (3)</button>
+  </div>
+
+  <div id="result"></div>
+
+  <button class="reset" onclick="resetGame()">♻️ إعادة اللعبة</button>
+</div>
+
+<script>
+let money=10, win=0, lose=0;
+let multi=1, life=0;
+
+function play(choice){
+  if(money<=0 && life==0){
+    msg("❌ سالا الرصيد");
+    return;
+  }
+
+  const coin=document.getElementById("coin");
+  coin.innerText="";
+  coin.classList.add("spin");
+
+  setTimeout(()=>{
+    coin.classList.remove("spin");
+    let r=Math.random()<0.5?"heads":"tails";
+
+    // هنا الحروف
+    coin.innerText = r==="heads" ? "R" : "T";
+
+    if(choice==r){
+      money+=1*multi;
+      win++;
+      msg("🔥 ربحت!");
+    }else{
+      if(life>0){
+        life--;
+        msg("❤️ نجّاتك الفرصة");
+      }else{
+        money--;
+        lose++;
+        msg("💥 خسرت!");
+      }
+    }
+    multi=1;
+    update();
+  },1000);
+}
+
+function update(){
+  moneyEl().innerText=money;
+  winEl().innerText=win;
+  loseEl().innerText=lose;
+}
+
+function moneyEl(){return document.getElementById("money")}
+function winEl(){return document.getElementById("win")}
+function loseEl(){return document.getElementById("lose")}
+function msg(t){document.getElementById("result").innerText=t}
+
+function toggleShop(){
+  let s=document.getElementById("shop");
+  s.style.display=s.style.display=="block"?"none":"block";
+}
+
+function buyDouble(){
+  if(money>=5){money-=5;multi=2;msg("💎 الربح تضاعف");update();}
+  else msg("❌ ما كافيش");
+}
+
+function buyLife(){
+  if(money>=3){money-=3;life++;msg("❤️ فرصة إضافية");update();}
+  else msg("❌ ما كافيش");
+}
+
+function resetGame(){
+  money=10;win=0;lose=0;multi=1;life=0;
+  document.getElementById("coin").innerText="?";
+  msg("");update();
+}
+</script>
+
+</body>
+</html>
